@@ -19,7 +19,13 @@ do
     SCN.add('player',{
         keyDown=function(key)
             if key=='escape' then
-                reset()
+                if playing[1] then
+                    reset()
+                elseif not TASK.lock('quit',1) then
+                    love.event.quit()
+                else
+                    MES.new('info',"Press again to quit")
+                end
             elseif key=='space' then
                 if playing[1] then
                     local m=playing[1].src:isPlaying()

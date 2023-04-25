@@ -8,6 +8,7 @@ do
     local waiting
     local playing={}
     local lastDropTime=-1
+    local masterObj={volume=1,lowgain=1,highgain=1}
     local function reset()
         for i=1,#playing do
             playing[i].src:stop()
@@ -15,7 +16,56 @@ do
         end
         TABLE.cut(playing)
         lastDropTime=love.timer.getTime()
+
+        masterObj.volume=1
+        masterObj.lowgain=1
+        masterObj.highgain=1
         TABLE.cut(WIDGET.active)
+        local w
+        w=WIDGET.new{
+            type='slider',axis={0,1},pos={.5,1},
+            x=-300,y=-35,w=200,
+            lineWidth=1.5,
+            fontSize=15,
+            labelDistance=10,widthLimit=80,
+            disp=function() return masterObj.volume end,
+            code=function(v)
+                masterObj.volume=v
+                for i=1,#playing do
+                    playing[i].volume=v
+                    playing[i].src:setVolume(v)
+                end
+            end,
+            valueShow=function() return "" end,
+        } w:reset() table.insert(WIDGET.active,w)
+        w=WIDGET.new{
+            type='slider',axis={0,1},pos={.5,1},
+            x=-40,y=-35,w=160,
+            lineWidth=1.5,
+            disp=function() return masterObj.lowgain end,
+            code=function(v)
+                masterObj.lowgain=v
+                for _,obj in next,playing do
+                    obj.lowgain=v
+                    obj.src:setFilter{type='bandpass',lowgain=v,highgain=obj.highgain,volume=1}
+                end
+            end,
+            valueShow=function() return "" end,
+        } w:reset() table.insert(WIDGET.active,w)
+        w=WIDGET.new{
+            type='slider',axis={0,1},pos={.5,1},
+            x=180,y=-35,w=160,
+            lineWidth=1.5,
+            disp=function() return masterObj.highgain end,
+            code=function(v)
+                masterObj.highgain=v
+                for _,obj in next,playing do
+                    obj.highgain=v
+                    obj.src:setFilter{type='bandpass',lowgain=obj.lowgain,highgain=v,volume=1}
+                end
+            end,
+            valueShow=function() return "" end,
+        } w:reset() table.insert(WIDGET.active,w)
     end
     SCN.add('player',{
         keyDown=function(key)
@@ -53,24 +103,46 @@ do
             waiting=0
             local suc,res=pcall(love.audio.newSource,file,'stream')
             if suc then
-                table.insert(playing,{
+                local obj={
                     name=file:getFilename(),
                     shortname=file:getFilename():match(".+\\(.+)%.%w+$"),
-                    src=res,
-                })
-                local w=WIDGET.new{
-                    type='slider',axis={0,1},pos={.5,1},
-                    x=-130,y=-35*#playing,w=260,
-                    lineWidth=1.5,
-                    fontSize=20,
-                    labelDistance=5,widthLimit=100,
-                    text=playing[#playing].shortname,
-                    disp=function() return res:getVolume() end,
-                    code=function(v) res:setVolume(v) end,
-                    valueShow=function() return "" end,
+                    src=res,volume=1,highgain=1,lowgain=1,
                 }
-                w:reset()
-                table.insert(WIDGET.active,w)
+                table.insert(playing,obj)
+                local w
+                w=WIDGET.new{
+                    type='slider',axis={0,1},pos={.5,1},
+                    x=-300,y=-35*(#playing+1),w=200,
+                    lineWidth=1.5,
+                    fontSize=15,
+                    text=obj.shortname,
+                    labelDistance=10,widthLimit=80,
+                    disp=function() return obj.volume end,
+                    code=function(v) obj.volume=v res:setVolume(v) end,
+                    valueShow=function() return "" end,
+                } w:reset() table.insert(WIDGET.active,w)
+                w=WIDGET.new{
+                    type='slider',axis={0,1},pos={.5,1},
+                    x=-40,y=-35*(#playing+1),w=160,
+                    lineWidth=1.5,
+                    fontSize=25,
+                    text="L",
+                    labelDistance=5,
+                    disp=function() return obj.lowgain end,
+                    code=function(v) obj.lowgain=v res:setFilter{type='bandpass',lowgain=v,highgain=obj.highgain,volume=1} end,
+                    valueShow=function() return "" end,
+                } w:reset() table.insert(WIDGET.active,w)
+                w=WIDGET.new{
+                    type='slider',axis={0,1},pos={.5,1},
+                    x=180,y=-35*(#playing+1),w=160,
+                    lineWidth=1.5,
+                    fontSize=25,
+                    text="H",
+                    labelDistance=5,
+                    disp=function() return obj.highgain end,
+                    code=function(v) obj.highgain=v res:setFilter{type='bandpass',lowgain=obj.lowgain,highgain=v,volume=1} end,
+                    valueShow=function() return "" end,
+                } w:reset() table.insert(WIDGET.active,w)
             else
                 local name=file:getFilename():reverse()
                 MES.new('error',"Cannot load file "..name:sub(1,(name:find("[/\\]") or #name+1)-1):reverse())

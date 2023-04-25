@@ -15,6 +15,7 @@ do
         end
         TABLE.cut(playing)
         lastDropTime=love.timer.getTime()
+        TABLE.cut(WIDGET.active)
     end
     SCN.add('player',{
         keyDown=function(key)
@@ -54,8 +55,22 @@ do
             if suc then
                 table.insert(playing,{
                     name=file:getFilename(),
+                    shortname=file:getFilename():match(".+\\(.+)%.%w+$"),
                     src=res,
                 })
+                local w=WIDGET.new{
+                    type='slider',axis={0,1},pos={.5,1},
+                    x=-130,y=-35*#playing,w=260,
+                    lineWidth=1.5,
+                    fontSize=20,
+                    labelDistance=5,widthLimit=100,
+                    text=playing[#playing].shortname,
+                    disp=function() return res:getVolume() end,
+                    code=function(v) res:setVolume(v) end,
+                    valueShow=function() return "" end,
+                }
+                w:reset()
+                table.insert(WIDGET.active,w)
             else
                 local name=file:getFilename():reverse()
                 MES.new('error',"Cannot load file "..name:sub(1,(name:find("[/\\]") or #name+1)-1):reverse())

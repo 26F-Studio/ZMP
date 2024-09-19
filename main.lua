@@ -1,9 +1,9 @@
 require("Zenitha")
-Zenitha.setAppName('ZMP')
-Zenitha.setFirstScene('player')
-Zenitha.setVersionText("v1.0")
-Zenitha.setDrawCursor(NULL)
-Zenitha.setClickFX(false)
+ZENITHA.setAppName('ZMP')
+ZENITHA.setFirstScene('player')
+ZENITHA.setVersionText("v1.0")
+ZENITHA.globalEvent.drawCursor=NULL
+ZENITHA.globalEvent.clickFX=NULL
 do
     local waiting
     local playing={}
@@ -14,13 +14,13 @@ do
             playing[i].src:stop()
             playing[i].src:release()
         end
-        TABLE.cut(playing)
+        TABLE.clear(playing)
         lastDropTime=love.timer.getTime()
 
         masterObj.volume=1
         masterObj.lowgain=1
         masterObj.highgain=1
-        TABLE.cut(WIDGET.active)
+        TABLE.clear(WIDGET.active)
         local w
         w=WIDGET.new{
             type='slider',axis={0,1},pos={.5,1},
@@ -75,7 +75,7 @@ do
                 elseif not TASK.lock('quit',1) then
                     love.event.quit()
                 else
-                    MES.new('info',"Press again to quit")
+                    MSG.new('info',"Press again to quit")
                 end
             elseif key=='space' then
                 if playing[1] then
@@ -98,7 +98,7 @@ do
                 end
             end
         end,
-        fileDropped=function(file)
+        fileDrop=function(file)
             if love.timer.getTime()-lastDropTime>1 then reset() end
             waiting=0
             local suc,res=pcall(love.audio.newSource,file,'stream')
@@ -145,7 +145,7 @@ do
                 } w:reset() table.insert(WIDGET.active,w)
             else
                 local name=file:getFilename():reverse()
-                MES.new('error',"Cannot load file "..name:sub(1,(name:find("[/\\]") or #name+1)-1):reverse())
+                MSG.new('error',"Cannot load file "..name:sub(1,(name:find("[/\\]") or #name+1)-1):reverse())
             end
         end,
         update=function(dt)

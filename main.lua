@@ -171,8 +171,8 @@ do
                 GC.setColor(COLOR.lG)
                 GC.rectangle('fill',0,5,800*playing[1].src:tell()/playing[1].src:getDuration(),8)
             else
-                FONT.set(80)
-                GC.mStr("MrZ's Music Player",400,200)
+                FONT.set(70)
+                GC.mStr("MrZ's Multitrack Player",400,200)
                 FONT.set(35)
                 GC.mStr("play multiple sound files together!",400,320)
                 FONT.set(30)

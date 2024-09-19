@@ -1,5 +1,5 @@
 function love.conf(t)
-    t.identity='ZED'-- Saving folder
+    t.identity='ZMP'-- Saving folder
     t.version="11.1"
     t.gammacorrect=false
     t.appendidentity=true-- Search files in source then in save directory

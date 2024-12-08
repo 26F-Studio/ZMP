@@ -5,6 +5,7 @@ ZENITHA.setVersionText("v1.0")
 ZENITHA.globalEvent.drawCursor=NULL
 ZENITHA.globalEvent.clickFX=NULL
 do
+    local GC,FONT=GC,FONT
     local waiting
     local playing={}
     local lastDropTime=-1
@@ -173,9 +174,8 @@ do
             else
                 FONT.set(70)
                 GC.mStr("MrZ's Multitrack Player",400,200)
-                FONT.set(35)
-                GC.mStr("play multiple sound files together!",400,320)
                 FONT.set(30)
+                GC.mStr("play multiple sound files together!",400,320)
                 GC.mStr("Drag & drop files here",400,435-20*math.abs(math.sin(love.timer.getTime()*5)))
                 FONT.set(15)
                 GC.mStr("esc=clear space=pause/play left/right=adjust time",400,540)

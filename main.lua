@@ -28,7 +28,7 @@ do
             x=-300,y=-35,w=200,
             lineWidth=1.5,
             fontSize=15,
-            labelDistance=10,widthLimit=80,
+            labelDist=10,widthLimit=80,
             disp=function() return masterObj.volume end,
             code=function(v)
                 masterObj.volume=v
@@ -76,7 +76,7 @@ do
                 elseif not TASK.lock('quit',1) then
                     love.event.quit()
                 else
-                    MSG.new('info',"Press again to quit")
+                    MSG('info',"Press again to quit")
                 end
             elseif key=='space' then
                 if playing[1] then
@@ -98,6 +98,7 @@ do
                     playing[i].src:seek(playing[i].src:tell()+5)
                 end
             end
+            return true
         end,
         fileDrop=function(file)
             if love.timer.getTime()-lastDropTime>1 then reset() end
@@ -106,9 +107,10 @@ do
             if suc then
                 local obj={
                     name=file:getFilename(),
-                    shortname=file:getFilename():match(".+\\(.+)%.%w+$"),
+                    shortname=file:getFilename():match(".+[\\/](.+)%.%w+$"),
                     src=res,volume=1,highgain=1,lowgain=1,
                 }
+                print(obj.shortname)
                 table.insert(playing,obj)
                 local w
                 w=WIDGET.new{
@@ -117,7 +119,7 @@ do
                     lineWidth=1.5,
                     fontSize=15,
                     text=obj.shortname,
-                    labelDistance=10,widthLimit=80,
+                    labelDist=10,widthLimit=80,
                     disp=function() return obj.volume end,
                     code=function(v) obj.volume=v res:setVolume(v) end,
                     valueShow=function() return "" end,
@@ -128,7 +130,7 @@ do
                     lineWidth=1.5,
                     fontSize=25,
                     text="L",
-                    labelDistance=5,
+                    labelDist=5,
                     disp=function() return obj.lowgain end,
                     code=function(v) obj.lowgain=v res:setFilter{type='bandpass',lowgain=v,highgain=obj.highgain,volume=1} end,
                     valueShow=function() return "" end,
@@ -139,14 +141,14 @@ do
                     lineWidth=1.5,
                     fontSize=25,
                     text="H",
-                    labelDistance=5,
+                    labelDist=5,
                     disp=function() return obj.highgain end,
                     code=function(v) obj.highgain=v res:setFilter{type='bandpass',lowgain=obj.lowgain,highgain=v,volume=1} end,
                     valueShow=function() return "" end,
                 } w:reset() table.insert(WIDGET.active,w)
             else
                 local name=file:getFilename():reverse()
-                MSG.new('error',"Cannot load file "..name:sub(1,(name:find("[/\\]") or #name+1)-1):reverse())
+                MSG('error',"Cannot load file "..name:sub(1,(name:find("[/\\]") or #name+1)-1):reverse())
             end
         end,
         update=function(dt)

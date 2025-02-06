@@ -101,7 +101,7 @@ do
             return true
         end,
         fileDrop=function(file)
-            if love.timer.getTime()-lastDropTime>1 then reset() end
+            if love.timer.getTime()-lastDropTime>1 and not love.keyboard.isDown('lctrl','rctrl') then reset() end
             waiting=0
             local suc,res=pcall(love.audio.newSource,file,'stream')
             if suc then
@@ -158,6 +158,9 @@ do
                     waiting=false
                     for i=1,#playing do
                         playing[i].src:setLooping(true)
+                        playing[i].src:stop()
+                    end
+                    for i=1,#playing do
                         playing[i].src:play()
                     end
                 end
@@ -165,8 +168,8 @@ do
         end,
         draw=function()
             GC.clear(COLOR.lD)
-            GC.setColor(COLOR.L)
             if playing[1] then
+                GC.setColor(COLOR.LD)
                 for i=1,#playing do
                     FONT.set(15)
                     GC.print(playing[i].name,20,20*i)
@@ -174,6 +177,7 @@ do
                 GC.setColor(COLOR.lG)
                 GC.rectangle('fill',0,5,800*playing[1].src:tell()/playing[1].src:getDuration(),8)
             else
+                GC.setColor(COLOR.L)
                 FONT.set(70)
                 GC.mStr("MrZ's Multitrack Player",400,200)
                 FONT.set(30)
